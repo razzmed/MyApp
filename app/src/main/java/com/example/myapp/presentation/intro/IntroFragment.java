@@ -1,6 +1,5 @@
-package com.example.myapp.intro;
+package com.example.myapp.presentation.intro;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,16 +9,24 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.myapp.MainActivity;
 import com.example.myapp.R;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class IntroFragment extends Fragment {
+
+    private static final String ARG_POSITION = "position";
+
+    public static Fragment newInstance(int position){
+        Bundle bundle = new Bundle();
+        bundle.putInt(ARG_POSITION, position);
+        IntroFragment fragment = new IntroFragment();
+        fragment.setArguments(bundle);
+        return fragment;
+    }
 
     public IntroFragment() {
         // Required empty public constructor
@@ -38,8 +45,8 @@ public class IntroFragment extends Fragment {
         TextView textTitle = view.findViewById(R.id.textTitle);
 
         super.onViewCreated(view, savedInstanceState);
-        int pos = getArguments().getInt("pos");
-        switch (pos) {
+        int position = getArguments().getInt(ARG_POSITION);
+        switch (position) {
             case 0:
                 textTitle.setText("Fragment 1");
 
