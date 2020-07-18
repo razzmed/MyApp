@@ -12,6 +12,7 @@ package com.example.myapp.model;
 
 import androidx.annotation.NonNull;
 
+import com.example.myapp.data.BoredApiClient;
 import com.google.gson.annotations.SerializedName;
 
 public class BoredAction {

@@ -3,6 +3,7 @@ package com.example.myapp.data;
 import android.util.Log;
 
 import com.example.myapp.model.BoredAction;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -21,33 +22,28 @@ public class BoredApiClient {
 
     BoredApi client = retrofit.create(BoredApi.class);
 
-    public void getAction(BoredActionCallback callback) {
-        Call<BoredAction> call = client.getAction(null);
+    public void getAction(String type, Integer participants, Float price, Float minPrice, Float maxPrice, Float accessibility, Float minAccessibility, Float maxAccessibility, BoredActionCallback callback) {
+        Call<BoredAction> call = client.getAction(type, participants, price, minPrice, maxPrice, accessibility, minAccessibility, maxAccessibility, callback);
         Log.d("ololo", call.request().url().toString());
 
-        call.enqueue(new Callback<BoredAction>() {
+        call.enqueue(new CoreCallback<BoredAction>() {
             @Override
-            public void onResponse(Call<BoredAction> call, Response<BoredAction> response) {
-                if (response.isSuccessful()) {
-                    if (response.body() != null) {
-                        callback.onSuccess(response.body());
-                    } else {
-                        callback.onFailure(new Exception("Body is empty"));
-                    }
-                } else {
-                    callback.onFailure(new Exception("Response code " + response.code()));
-                }
+            void onSuccess(BoredAction result) {
+                callback.onSuccess(result);
             }
 
             @Override
-            public void onFailure(Call<BoredAction> call, Throwable t) {
-                callback.onFailure(new Exception(t));
+            void onFailure(Exception exception) {
+                callback.onFailure(exception);
             }
         });
     }
 
-    public interface BoredActionCallback {
-        void onSuccess(BoredAction boredAction);
+    public interface BoredActionCallback extends BaseCallback<BoredAction> {
+
+    }
+    public interface BaseCallback<T> {
+        void onSuccess(T result);
 
         void onFailure(Exception exception);
     }
@@ -55,6 +51,14 @@ public class BoredApiClient {
     private interface BoredApi {
 
         @GET("api/activity/")
-        Call<BoredAction> getAction(@Query("type") String type);
+        Call<BoredAction> getAction(@Query("type") String type,
+                                    @Query("participants") Integer participants,
+                                    @Query("price") Float price,
+                                    @Query("minPrice") Float minPrice,
+                                    @Query("maxPrice") Float maxPrice,
+                                    @Query("accessibility") Float accessibility,
+                                    @Query("minAccessibility") Float minAccessibility,
+                                    @Query("maxAccessibility") Float maxAccessibility,
+                                    @Query("BoredActionCallback") BoredActionCallback callback);
     }
 }
