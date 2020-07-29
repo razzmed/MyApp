@@ -1,39 +1,28 @@
 package com.example.myapp.presentation.main;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.myapp.App;
 import com.example.myapp.R;
-import com.example.myapp.data.BoredApiClient;
-import com.example.myapp.model.BoredAction;
-import com.google.android.material.slider.RangeSlider;
-
-import java.text.MessageFormat;
-import java.util.List;
+import com.example.myapp.presentation.favorites.FavoritesFragment;
+import com.example.myapp.presentation.settings.SettingsFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
-    Spinner spinner;
-    String valueOfSpinner;
-    TextView textViewCategory, textViewExplore, textViewPrice;
-    RangeSlider rangeBarPrice, rangeBarAccessibility;
-    private List<Float> price, accessibility;
-    Float minPrice, maxPrice, minAccessibility, maxAccessibility;
-    ProgressBar progressBar;
+    ViewPager viewPager;
+    BottomNavigationView bottomNavigationView;
 
     public static void start(Context context) {
         context.startActivity(new Intent(context, MainActivity.class));
@@ -44,87 +33,57 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initViews();
-        onSpinner();
-        onRangeBar();
-    }
+        viewPager = findViewById(R.id.main_view_pager);
+        bottomNavigationView = findViewById(R.id.main_bottom_nav);
 
-    private void initViews() {
-        spinner = findViewById(R.id.types_spinner);
-        textViewCategory = findViewById(R.id.category);
-        textViewExplore = findViewById(R.id.explore_text);
-        textViewPrice = findViewById(R.id.price_text);
-        rangeBarPrice = findViewById(R.id.range_bar_price);
-        rangeBarAccessibility = findViewById(R.id.range_bar_accessibility);
-        progressBar = findViewById(R.id.progressBar);
+        viewPagerAdapter();
 
     }
 
-
-    private void onSpinner() {
-        String[] dropdownCategory = getResources().getStringArray(R.array.types);
-        ArrayAdapter<String> adapter = new
-                ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, dropdownCategory);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    public void viewPagerAdapter() {
+        viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
+        viewPager.setOffscreenPageLimit(2);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                valueOfSpinner = spinner.getSelectedItem().toString();
-                textViewCategory.setText(valueOfSpinner);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(MainActivity.this, "No item is selected", Toast.LENGTH_SHORT).show();
-
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.nav_home: viewPager.setCurrentItem(0, false);
+                    break;
+                    case  R.id.nav_favorites: viewPager.setCurrentItem(1, false);
+                    break;
+                    case R.id.nav_settings: viewPager.setCurrentItem(2, false);
+                    break;
+                }
+                return true;
             }
         });
     }
 
-    public void onRangeBar() {
-        rangeBarPrice.addOnChangeListener(((slider, value, fromUser) -> {
-            try {
-                price = slider.getValues();
-                minPrice = price.get(0);
-                maxPrice = price.get(1);
-                Log.e("ololo", price.toString());
-            } catch (ArrayIndexOutOfBoundsException e) {
-                if (price == null) {
-                    Toast.makeText(this, "Wrong price", Toast.LENGTH_SHORT).show();
-                    e.getMessage();
-                }
-            }
-        }));
-        rangeBarAccessibility.addOnChangeListener(((slider, value, fromUser) -> {
-            try {
-                accessibility = slider.getValues();
-                minAccessibility = accessibility.get(0);
-                maxAccessibility = accessibility.get(1);
-                Log.e("ololo", accessibility.toString());
-            } catch (ArrayIndexOutOfBoundsException e) {
-                if (accessibility == null) {
-                    Toast.makeText(this, "Not available", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }));
-    }
+    public class PagerAdapter extends FragmentPagerAdapter {
 
-    public void btn_Next(View view) {
-        App.boredApiClient.getAction(valueOfSpinner, null, null, minPrice, maxPrice, null, minAccessibility, maxAccessibility, new BoredApiClient.BoredActionCallback() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onSuccess(BoredAction boredAction) {
-                Log.e("ololo", boredAction.toString());
-                textViewExplore.setText(boredAction.getActivity());
-                textViewPrice.setText(MessageFormat.format("{0} $", boredAction.getPrice().toString()));
-                progressBar.setProgress ((int) (boredAction.getAccessibility()*100), true);
-            }
 
-            @Override
-            public void onFailure(Exception exception) {
+        public PagerAdapter(@NonNull FragmentManager fm) {
+            super(fm, FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        }
 
+        @NonNull
+        @Override
+        public Fragment getItem(int position) {
+            Fragment fragment;
+
+            switch (position) {
+                case 0: fragment = MainFragment.newInstance();
+                break;
+                case 1: fragment = FavoritesFragment.newInstance();
+                break;
+                default: fragment = SettingsFragment.newInstance();
             }
-        });
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
     }
 }

@@ -17,19 +17,20 @@ import android.widget.LinearLayout;
 
 import com.example.myapp.presentation.main.MainActivity;
 import com.example.myapp.R;
+import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
 public class IntroActivity extends AppCompatActivity {
 
     private Button skip, next;
     private ViewPager viewPager;
-    private LinearLayout layoutOnBoardIndicator;
+    DotsIndicator dotsIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
 
-        layoutOnBoardIndicator = findViewById(R.id.onBoardIndicator);
+        dotsIndicator = findViewById(R.id.dots_indicator);
 
         skip = findViewById(R.id.btn_skip);
         next = findViewById(R.id.btn_next);
@@ -51,12 +52,13 @@ public class IntroActivity extends AppCompatActivity {
 
         viewPager = findViewById(R.id.viewPager);
         viewPager.setAdapter(new SectionPagerAdapter(getSupportFragmentManager()));
+        dotsIndicator.setViewPager(viewPager);
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
 
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                setCurrentOnBoardIndicator(position);
+
                 if (position == SectionPagerAdapter.PAGES_COUNT - 1) {
                     next.setText("Start");
                     skip.setVisibility(View.GONE);
@@ -64,8 +66,6 @@ public class IntroActivity extends AppCompatActivity {
                     next.setText("Next");
                     skip.setVisibility(View.VISIBLE);
                 }
-                setupOnBoardIndicator();
-                setCurrentOnBoardIndicator(0);
             }
         });
 
@@ -96,30 +96,6 @@ public class IntroActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             return PAGES_COUNT;
-        }
-    }
-
-    private void setupOnBoardIndicator() {
-        ImageView[] indicator = new ImageView[viewPager.getCurrentItem()];
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.setMargins(8,0,8,0);
-        for (int i = 0; i < indicator.length; i++) {
-            indicator[i] = new ImageView(getApplicationContext());
-            indicator[i].setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.onboard_indicator_2));
-            indicator[i].setLayoutParams(layoutParams);
-            layoutOnBoardIndicator.addView(indicator[i]);
-        }
-    }
-
-    private void setCurrentOnBoardIndicator(int index) {
-        int childCount = layoutOnBoardIndicator.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            ImageView imageView = (ImageView) layoutOnBoardIndicator.getChildAt(i);
-            if (i == index) {
-                imageView.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.onboard_indicator));
-            } else {
-                imageView.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.onboard_indicator_2));
-            }
         }
     }
 }

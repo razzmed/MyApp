@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.myapp.R;
@@ -43,20 +44,24 @@ public class IntroFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         TextView textTitle = view.findViewById(R.id.textTitle);
+        ImageView imageView = view.findViewById(R.id.imageView);
 
         super.onViewCreated(view, savedInstanceState);
         int position = getArguments().getInt(ARG_POSITION);
         switch (position) {
             case 0:
-                textTitle.setText("Fragment 1");
+                textTitle.setText("Are you bored?");
+                imageView.setImageResource(R.drawable.page_one);
 
                 break;
             case 1:
-                textTitle.setText("Fragment 2");
+                textTitle.setText("Do you know what to do?");
+                imageView.setImageResource(R.drawable.page_two);
 
                 break;
             case 2:
-                textTitle.setText("Fragment 3");
+                textTitle.setText("Use this app!");
+                imageView.setImageResource(R.drawable.page_three);
 
                 break;
         }
